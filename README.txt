@@ -32,6 +32,3 @@ server should be compatibale with any device that can connect to the internet.
 iot would be part of connecting and grabbing information from the internet such as the tempature, local time and brightness of day.
 
 
-this is a check to see if anyone cheaks git updates/commits, will be deleted and worked on tmr
-
-
