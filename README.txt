@@ -1,34 +1,106 @@
-# Arduino iot webvideo
-A doorbell with a camera linking to different devices will be using autodesk's hobbist circuit maker, fusion 360.
+## Distributed IoT Vision System
+### ESP32-S3 Edge Streaming with Server-Side Facial Recognition
 
-## Hardware
--Arduino Uno Wifi
--LM386(amplifer to increase the noise)
--Speaker
--12v powersupply will be attached to the arduino.
--LCD screen and button will be attached  to the arduino.
--Camera module(ov7670) will be attached and send information in Uart RX Tx. 
+###Abstract
 
-have on and low power mode (pwm implemintation) on will send information provided by the camera onto the cloud (IOT device) information can be viewed from any monitor that can connect to the cloud the cloud will have a user and password to it.
+This project implements a distributed real-time IoT vision system using an ESP32-S3 with an OV2640 for edge-based image acquisition and MJPEG streaming over WiFi.
+Captured frames are transmitted to a host processing server where facial detection and recognition are performed using OpenCV. The system demonstrates embedded camera interfacing, hardware-accelerated compression, memory-aware buffering strategies, and distributed AI processing.
+The architecture intentionally separates image acquisition from computationally intensive inference to reflect production IoT design principles.
 
-
-Extra features if time avaliable:
-a sensor that will turn on and send a notification to the device
-
-libraries would have to be installed to save time and have the video recorder to work
-
-provided (https://github.com/indrekluuk/LiveOV7670)
-
-https://www.youtube.com/watch?v=R94WZH8XAvM&t=325s&ab_channel=Indrek
-
-This video will connect a little 128x160 pixal screen, I will be sending the information onto a the cloud
-
-Autodesk Fusion will be used to create the schematic
-
-Part two would be creating a server possibly with IoT applications help with ESP8266-01 MODULE
-
-server should be compatibale with any device that can connect to the internet.
-
-iot would be part of connecting and grabbing information from the internet such as the tempature, local time and brightness of day.
++------------------------+
+|  ESP32-S3 Edge Device  |
+|------------------------|
+| - Camera Capture       |
+| - Hardware JPEG Encode |
+| - PSRAM Buffering      |
+| - HTTP MJPEG Stream    |
++-----------+------------+
+            |
+            | MJPEG over HTTP
+            v
++------------------------+
+|  Processing Server     |
+|------------------------|
+| - Frame Decode         |
+| - Face Detection       |
+| - Face Recognition     |
+| - Logging & Display    |
++------------------------+
 
 
+## Architectural Rationale
+
+Microcontrollers are optimized for deterministic I/O operations.
+Facial recognition requires memory-intensive matrix computation.
+
+Separating acquisition and inference:
+Improves frame rate stability
+Reduces embedded memory pressure
+Enables scalable processing
+Mirrors real-world IoT deployments
+
+### Hardware Platform
+
+ESP32-S3 N16R8
+-Dual-core 240 MHz
+-16MB Flash
+-8MB PSRAM
+OV2640
+
+Why ESP32-S3
+-Dedicated camera interface with DMA
+-Hardware JPEG encoder
+-External PSRAM support
+-Integrated WiFi stack
+-Vector instruction support (future TinyML expansion)
+
+### Memory Strategy
+
+QVGA frame (320×240):
+320 × 240 ≈ 76 KB (grayscale equivalent)
+
+PSRAM enables:
+-Double frame buffering
+-Stable MJPEG streaming
+-Reduced frame drops under WiFi jitter
+-Future on-device inference experimentation
+
+### Embedded Firmware Design
+Core Components
+-Espressif Camera Driver
+-PSRAM-backed frame buffers
+-HTTP streaming server
+-Snapshot REST endpoint
+-Configurable WiFi credentials
+
+Data Flow
+-Camera DMA transfers frame to PSRAM
+-Hardware JPEG compression applied
+-Frame served via HTTP MJPEG boundary stream
+-Client decodes JPEG frames
+-This design prevents network latency from interfering with frame acquisition.
+
+### Processing Pipeline
+
+Host-side implementation (Python + OpenCV):
+1. Connect to MJPEG stream
+2. Decode JPEG frames
+3. Convert to grayscale
+4. Detect faces
+5. Perform identity recognition
+6. Annotate and display
+7. Log detection timestamps
+
+Inference remains off-device to preserve real-time throughput.
+
+### File Structure
+
+/firmware
+    camera_stream.ino
+/server
+    server.py
+    recognition.py
+    requirements.txt
+/docs
+    architecture_diagram.png
+README.md
