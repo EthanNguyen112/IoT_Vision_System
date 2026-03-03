@@ -1,7 +1,7 @@
 ## Distributed IoT Vision System
 ### ESP32-S3 Edge Streaming with Server-Side Facial Recognition
 
-###Abstract
+### Abstract
 
 This project implements a distributed real-time IoT vision system using an ESP32-S3 with an OV2640 for edge-based image acquisition and MJPEG streaming over WiFi.
 Captured frames are transmitted to a host processing server where facial detection and recognition are performed using OpenCV. The system demonstrates embedded camera interfacing, hardware-accelerated compression, memory-aware buffering strategies, and distributed AI processing.
