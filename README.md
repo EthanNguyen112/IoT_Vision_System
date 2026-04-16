@@ -96,7 +96,10 @@ Inference remains off-device to preserve real-time throughput.
 ### File Structure
 
 /firmware
-    camera_stream.ino
+    src/
+        main.cpp          ← camera init, WiFi, HTTP server
+        camera_config.h   ← pin map + camera settings
+    platformio.ini
 /server
     server.py
     recognition.py
